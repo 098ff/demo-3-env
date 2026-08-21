@@ -32,7 +32,46 @@ A minimal **Next.js** app that demonstrates how a single repo with **3 branches*
 
 ---
 
-### Step 2 — Trigger Preview Deployments (develop & preprod)
+### Step 2 — ตั้งค่า Vercel ให้รู้จัก Branch ↔ Environment
+
+หลัง deploy สำเร็จแล้ว ต้องบอก Vercel ว่า branch ไหนคือ environment ไหน:
+
+#### 2a. ตั้ง Production Branch
+1. ไปที่ **Project Dashboard → Settings → Git**
+2. หา section **"Production Branch"**
+3. ตั้งค่าเป็น **`main`** (ปกติ Vercel ตั้งให้อัตโนมัติ แต่ควรตรวจสอบ)
+4. Click **Save**
+
+> ✅ หมายความว่า: ทุกครั้งที่ push ไปที่ `main` → Vercel จะ deploy เป็น **Production**
+
+#### 2b. ตรวจสอบ Git Integration
+1. ไปที่ **Project Dashboard → Settings → Git**
+2. ตรวจสอบว่า **"Automatically deploy"** ถูกเปิดอยู่ (enabled by default)
+3. ตรวจสอบว่า repo GitHub ถูก connect ถูกต้อง
+
+> ✅ เมื่อเปิด auto-deploy → ทุก branch ที่มีการ push จะถูก deploy อัตโนมัติ
+
+#### 2c. ทำความเข้าใจ: Vercel แบ่ง Environment อย่างไร
+
+Vercel มี **2 ประเภท deployment**:
+
+| ประเภท | Branch | การ trigger |
+|--------|--------|------------|
+| **Production** | เฉพาะ branch ที่ตั้งใน "Production Branch" (เช่น `main`) | Push ไป `main` |
+| **Preview** | **ทุก branch อื่น** ที่ไม่ใช่ Production Branch | Push ไป `develop`, `preprod`, หรือ branch ใดก็ได้ |
+
+ดังนั้นในโปรเจคนี้:
+- `main` → **Production** deployment (URL หลัก `xxx.vercel.app`)
+- `preprod` → **Preview** deployment (URL แยก `xxx-git-preprod-xxx.vercel.app`)
+- `develop` → **Preview** deployment (URL แยก `xxx-git-develop-xxx.vercel.app`)
+
+> 💡 **Tip**: แม้ทั้ง `develop` กับ `preprod` จะเป็น "Preview" ใน Vercel เหมือนกัน  
+> แต่แต่ละ branch ได้ **URL คนละอัน** และ build จาก **โค้ดคนละ branch**  
+> จึงแสดง UI ต่างกันตามที่เราตั้งไว้ในแต่ละ branch
+
+---
+
+### Step 3 — Trigger Preview Deployments (develop & preprod)
 
 > ⚠️ **สำคัญ**: Vercel จะ deploy เฉพาะ branch ที่มีการ push **หลังจาก** ที่ import project แล้วเท่านั้น  
 > ถ้า branch `develop` และ `preprod` ถูก push ไปก่อนหน้า → Vercel จะยังไม่เห็น → ต้อง trigger ด้วยการ push commit ใหม่
@@ -64,7 +103,7 @@ git push origin develop
 
 ---
 
-### Step 3 — ดู Preview URL ของแต่ละ branch
+### Step 4 — ดู Preview URL ของแต่ละ branch
 
 ไปที่ **Vercel Dashboard → Deployments tab** แล้วจะเห็น deployment list:
 
@@ -88,7 +127,7 @@ git push origin develop
 
 ---
 
-### Step 4 — (Optional) Set Environment Variables per Environment
+### Step 5 — (Optional) Set Environment Variables per Environment
 
 ถ้าต้องการให้แต่ละ environment มีค่า `NEXT_PUBLIC_API_URL` ต่างกัน:
 
