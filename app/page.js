@@ -1,0 +1,87 @@
+export default function Home() {
+  const envLabel = process.env.NEXT_PUBLIC_ENV_LABEL || 'UNKNOWN';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '(not set)';
+
+  // Environment-specific config
+  const envConfig = {
+    DEV: {
+      name: 'Development (DEV)',
+      gradient: 'linear-gradient(135deg, #0d9488, #115e59)',
+      badge: '#14b8a6',
+    },
+    PRE: {
+      name: 'Pre-Production (PRE)',
+      gradient: 'linear-gradient(135deg, #d97706, #92400e)',
+      badge: '#f59e0b',
+    },
+    PROD: {
+      name: 'Production (PROD)',
+      gradient: 'linear-gradient(135deg, #334155, #0f172a)',
+      badge: '#64748b',
+    },
+  };
+
+  const config = envConfig[envLabel] || {
+    name: `Unknown (${envLabel})`,
+    gradient: 'linear-gradient(135deg, #1e1e2f, #2a2a3b)',
+    badge: '#6b7280',
+  };
+
+  return (
+    <div style={{
+      fontFamily: "'Inter', sans-serif",
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: config.gradient,
+      color: '#fff',
+    }}>
+      <main style={{
+        textAlign: 'center',
+        maxWidth: '520px',
+        width: '90%',
+        background: 'rgba(255,255,255,0.1)',
+        padding: '2.5rem',
+        borderRadius: '16px',
+        backdropFilter: 'blur(12px)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+        border: '1px solid rgba(255,255,255,0.15)',
+      }}>
+        <div style={{
+          display: 'inline-block',
+          padding: '0.35rem 1rem',
+          borderRadius: '999px',
+          background: config.badge,
+          fontSize: '0.85rem',
+          fontWeight: 600,
+          letterSpacing: '0.05em',
+          marginBottom: '1.25rem',
+          color: '#fff',
+        }}>
+          {config.name}
+        </div>
+
+        <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 700 }}>
+          Vercel 3-Env Demo
+        </h1>
+
+        <p style={{ opacity: 0.7, marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+          This page proves each environment has its own config.
+        </p>
+
+        <div style={{
+          background: 'rgba(0,0,0,0.2)',
+          borderRadius: '8px',
+          padding: '1rem',
+          textAlign: 'left',
+          fontSize: '0.9rem',
+          lineHeight: 1.8,
+        }}>
+          <div><strong>ENV_LABEL:</strong> {envLabel}</div>
+          <div style={{ wordBreak: 'break-all' }}><strong>API_URL:</strong> {apiUrl}</div>
+        </div>
+      </main>
+    </div>
+  );
+}
