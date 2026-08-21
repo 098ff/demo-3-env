@@ -11,37 +11,89 @@ A minimal **Next.js** app that demonstrates how a single repo with **3 branches*
 ---
 
 ## Prerequisites
-- A **GitHub** account with the repo: `https://github.com/098ff/demo-3-env`
+- A **GitHub** account with the repo pushed (3 branches: `main`, `develop`, `preprod`)
 - A **Vercel** account (free tier works) — sign up at [vercel.com](https://vercel.com)
 
 ---
 
 ## Step-by-Step: Deploy to Vercel
 
-### Step 1 — Import the Project
+### Step 1 — Import the Project (Production)
 1. Go to [vercel.com/new](https://vercel.com/new)
 2. Click **"Import Git Repository"**
-3. Select the GitHub repo **`098ff/demo-3-env`**
+3. Select the GitHub repo (e.g. `098ff/demo-3-env`)
 4. Vercel auto-detects **Next.js** — leave all defaults as-is
-5. Click **"Deploy"**
+5. **ไม่ต้องเพิ่ม Environment Variables** — โค้ดมี default ฝังไว้แล้ว
+6. Click **"Deploy"**
 
-> After this step, Vercel deploys the `main` branch as **Production**.  
-> You should see the **🔵 Production (PROD)** page with a slate background.
-
----
-
-### Step 2 — Set the Production Branch
-1. Go to **Project Settings → Git**
-2. Under **"Production Branch"**, make sure it is set to **`main`**
-3. Click **Save**
-
-> This ensures only `main` is treated as Production.
+> ✅ Vercel จะ deploy branch `main` เป็น **Production** ให้อัตโนมัติ  
+> คุณจะเห็นหน้า **🔵 Production (PROD)** พื้นหลังสีเทาเข้ม (slate)  
+> URL: `https://<project-name>.vercel.app`
 
 ---
 
-### Step 3 — (Optional) Set Environment Variables per Environment
-1. Go to **Project Settings → Environment Variables**
-2. Add `NEXT_PUBLIC_API_URL` with different values for each environment:
+### Step 2 — Trigger Preview Deployments (develop & preprod)
+
+> ⚠️ **สำคัญ**: Vercel จะ deploy เฉพาะ branch ที่มีการ push **หลังจาก** ที่ import project แล้วเท่านั้น  
+> ถ้า branch `develop` และ `preprod` ถูก push ไปก่อนหน้า → Vercel จะยังไม่เห็น → ต้อง trigger ด้วยการ push commit ใหม่
+
+#### วิธี trigger: push empty commit ไปที่แต่ละ branch
+
+```bash
+# Trigger preprod preview deployment
+git checkout preprod
+git commit --allow-empty -m "chore: trigger vercel preview deploy"
+git push origin preprod
+
+# Trigger develop preview deployment
+git checkout develop
+git commit --allow-empty -m "chore: trigger vercel preview deploy"
+git push origin develop
+```
+
+#### ดูผลบน Vercel
+1. เปิด **Vercel Dashboard → Project → Deployments** tab
+2. จะเห็น deployment ใหม่ 2 รายการ (status: Building → Ready)
+3. คลิกที่แต่ละ deployment เพื่อเปิด Preview URL
+
+| Deployment | Branch | Status | สิ่งที่เห็น |
+|------------|--------|--------|------------|
+| Production | `main` | ✅ มีอยู่แล้ว | 🔵 Slate — **Production (PROD)** |
+| Preview | `preprod` | 🔄 ต้อง trigger | 🟡 Amber — **Pre-Production (PRE)** |
+| Preview | `develop` | 🔄 ต้อง trigger | 🟢 Teal — **Development (DEV)** |
+
+---
+
+### Step 3 — ดู Preview URL ของแต่ละ branch
+
+ไปที่ **Vercel Dashboard → Deployments tab** แล้วจะเห็น deployment list:
+
+1. **คลิกที่ deployment** ของ branch `preprod` → จะเห็น Preview URL เช่น:
+   ```
+   https://demo-3-env-git-preprod-<your-username>.vercel.app
+   ```
+   เปิด URL นี้จะเห็นหน้า **🟡 Pre-Production (PRE)** พื้นหลังสีเหลืองอำพัน
+
+2. **คลิกที่ deployment** ของ branch `develop` → จะเห็น Preview URL เช่น:
+   ```
+   https://demo-3-env-git-develop-<your-username>.vercel.app
+   ```
+   เปิด URL นี้จะเห็นหน้า **🟢 Development (DEV)** พื้นหลังสีเขียวน้ำเงิน (teal)
+
+3. **Production URL** (branch `main`):
+   ```
+   https://demo-3-env.vercel.app
+   ```
+   เปิด URL นี้จะเห็นหน้า **🔵 Production (PROD)** พื้นหลังสีเทาเข้ม
+
+---
+
+### Step 4 — (Optional) Set Environment Variables per Environment
+
+ถ้าต้องการให้แต่ละ environment มีค่า `NEXT_PUBLIC_API_URL` ต่างกัน:
+
+1. ไปที่ **Project Settings → Environment Variables**
+2. เพิ่ม `NEXT_PUBLIC_API_URL` โดยเลือก Environment ที่ต้องการ:
 
 | Variable | Environment Target | Value |
 |----------|-------------------|-------|
@@ -49,37 +101,8 @@ A minimal **Next.js** app that demonstrates how a single repo with **3 branches*
 | `NEXT_PUBLIC_API_URL` | **Preview** | `https://pre-api.example.com` |
 | `NEXT_PUBLIC_API_URL` | **Development** | `https://dev-api.example.com` |
 
-> When adding, use the **Environment** checkboxes to pick which target (Production / Preview / Development) each value applies to.
-
----
-
-### Step 4 — Trigger Deployments for Each Branch
-
-#### 4a. Production (`main`) — Already Deployed
-- The initial import already deployed `main` as production.
-- **URL**: Your project's primary domain, e.g. `https://demo-3-env.vercel.app`
-- You should see: **🔵 Production (PROD)** with a slate background.
-
-#### 4b. Pre-Production (`preprod`) — Preview Deployment
-Any branch that is **not** the production branch is treated as a **Preview** deployment by Vercel. To trigger it:
-
-1. Go to GitHub → repo **demo-3-env**
-2. The `preprod` branch is already pushed.
-3. Go to Vercel dashboard → your project → **"Deployments"** tab.
-4. If `preprod` hasn't been deployed yet, you can trigger it by:
-   - Pushing a small commit to `preprod`, **OR**
-   - Going to **Vercel Dashboard → Project → Settings → Git** and clicking **"Redeploy"** for the `preprod` branch, **OR**
-   - Using the Vercel CLI: `vercel --force` (while on the `preprod` branch)
-5. Vercel will create a **Preview URL** like: `https://demo-3-env-git-preprod-098ffs-projects.vercel.app`
-6. You should see: **🟡 Pre-Production (PRE)** with an amber background.
-
-#### 4c. Development (`develop`) — Preview Deployment
-Same process as `preprod`:
-
-1. The `develop` branch is already pushed.
-2. Trigger a deployment by pushing a commit or redeploying from the dashboard.
-3. Vercel will create a **Preview URL** like: `https://demo-3-env-git-develop-098ffs-projects.vercel.app`
-4. You should see: **🟢 Development (DEV)** with a teal background.
+> ไม่จำเป็นสำหรับ POC นี้ — โค้ดมี default value ฝังไว้แล้ว  
+> แต่ใน production จริงๆ ควรตั้ง env vars ผ่าน Vercel dashboard
 
 ---
 
@@ -99,7 +122,23 @@ Same process as `preprod`:
 └──────────────┘     └─────────────────────────┘     └─────────────────────────────────────┘
 ```
 
-> **Note**: Vercel has only 2 deployment types: **Production** (one branch) and **Preview** (all other branches). Both `develop` and `preprod` are Preview deployments but get unique URLs.
+> **Note**: Vercel มีแค่ 2 deployment types: **Production** (1 branch) กับ **Preview** (ทุก branch อื่น)  
+> ทั้ง `develop` และ `preprod` เป็น Preview deployment แต่ได้ URL คนละอัน  
+> ความแตกต่างอยู่ที่โค้ดใน `page.js` ของแต่ละ branch ที่แสดง UI ต่างกัน
+
+---
+
+## How It Works (ทำไมแต่ละ env ถึงดูต่างกัน)
+
+แต่ละ branch มีไฟล์ `app/page.js` ที่ **hardcode** สี background และ label ไว้ต่างกัน:
+
+| Branch | Gradient | Badge Color | Label |
+|--------|----------|------------|-------|
+| `develop` | `#0d9488 → #115e59` (teal) | `#14b8a6` | 🟢 Development (DEV) |
+| `preprod` | `#d97706 → #92400e` (amber) | `#f59e0b` | 🟡 Pre-Production (PRE) |
+| `main` | `#334155 → #0f172a` (slate) | `#64748b` | 🔵 Production (PROD) |
+
+เมื่อ Vercel deploy แต่ละ branch → มัน build โค้ดจาก branch นั้นๆ → UI จึงต่างกันโดยอัตโนมัติ
 
 ---
 
