@@ -1,111 +1,158 @@
 # Vercel 3‑Environment Proof‑of‑Concept
 
-A minimal **Next.js** app that demonstrates how a single codebase can run with three distinct Vercel environments (Development, Preview, Production) using a generic environment variable `NEXT_PUBLIC_API_URL`.
+A minimal **Next.js** app that demonstrates how a single repo with **3 branches** can be deployed as **3 distinct environments** on Vercel. Each branch renders a visually different page so you can immediately tell which environment you're on.
 
-## What You’ll See
-The home page displays:
-- The current Vercel environment (`development`, `preview`, or `production`).
-- The value of `NEXT_PUBLIC_API_URL` for that environment.
-
-## Repository Structure
-```
-cbc-demo-3-env/
-├─ .git/                 # Git repository (auto‑initialized)
-├─ .gitignore           
-├─ .env.development      # Local dev env variables
-├─ .env.preview          # Local preview env variables
-├─ .env.production       # Local production env variables
-├─ app/
-│  └─ page.js           # Main page (environment demo)
-├─ README.md            # This file
-├─ package.json
-└─ ...
-```
-
-## Prerequisites
-- **Node.js** ≥ 18 (LTS) – includes npm.
-- A **Vercel** account (free tier works).
-- Git installed for version control.
-
-## Local Development
-1. **Open the folder**
-   ```bash
-   cd /Users/098f/Desktop/cbc-demo-3-env
-   ```
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-3. **Run the app**
-   ```bash
-   npm run dev   # uses .env.development automatically
-   ```
-   Open <http://localhost:3000>. You should see the Development label and the API URL set in `.env.development`.
-
-### Switching Environments Locally
-Next.js picks the env file based on the `NODE_ENV` value:
-- `development` → `.env.development`
-- `preview` (you can simulate) → set `VERCEL_ENV=preview` and run `npm run dev`.
-- `production` → set `VERCEL_ENV=production` and run `npm run build && npm start`.
-
-## Environment Files
-Create the three files (already provided) with your own API endpoints:
-```dotenv
-# .env.development
-NEXT_PUBLIC_API_URL=https://dev.example.com/api
-```
-```dotenv
-# .env.preview
-NEXT_PUBLIC_API_URL=https://preview.example.com/api
-```
-```dotenv
-# .env.production
-NEXT_PUBLIC_API_URL=https://prod.example.com/api
-```
-These files are ignored by Git (`.gitignore` contains `.env*`).
-
-## Deploying to Vercel
-1. **Create a new Vercel project** and point it at the folder `cbc-demo-3-env`.
-2. **Link a Git provider** (GitHub, GitLab, Bitbucket). Push the repo to a remote branch – Vercel will automatically create a preview deployment for each PR/branch.
-3. **Configure Environment Variables** in Vercel:
-   - Go to **Project Settings → Environment Variables**.
-   - Add `NEXT_PUBLIC_API_URL` three times – once for **Development**, once for **Preview**, and once for **Production**.
-   - Use the same values you placed in the local `.env.*` files (or any values you need).
-4. **Deploy**
-   - Vercel runs `npm install && npm run build` automatically.
-   - The production URL (`https://<project>.vercel.app`) will show the Production label and its API URL.
-   - Preview URLs (`https://<branch>-<hash>.vercel.app`) will show the Preview label.
-
-## Verifying the Environments
-| Environment | How to verify locally | Vercel URL example |
-|-------------|----------------------|-------------------|
-| Development | `npm run dev` (uses `.env.development`) | `vercel dev` (CLI) |
-| Preview | Set `VERCEL_ENV=preview` and run `npm run dev` | `https://<branch>-<hash>.vercel.app` |
-| Production | `npm run build && npm start` (uses `.env.production`) | `https://<project>.vercel.app` |
-
-## Git Workflow (Selective Release Strategy)
-The repository follows the **Selective Release** branching model you provided:
-- **develop** – ongoing development. Feature branches: `feat/<TEAM_ID>_BSL_<TASK_ID>`.
-- **preprod** – UAT stage. Branches: `pp/<TEAM_ID>_BSL_<TASK_ID>` (Cherry‑pick from `develop`).
-- **main** – production. Branches: `prod/<TEAM_ID>_BSL_<TASK_ID>` (Cherry‑pick from `preprod`).
-
-All merges to `develop`, `preprod`, or `main` must go through Pull Requests. Direct pushes are prohibited.
-
-## Styling & Aesthetics
-The page uses:
-- **Inter** font via Google Fonts (loaded automatically by Next.js).
-- A dark‑mode friendly gradient background.
-- Glass‑morphism cards with subtle blur (`backdrop-filter`).
-- Responsive layout that works on mobile and desktop.
-
-Feel free to tweak `styles/globals.css` or replace the inline styles with Tailwind/CSS modules.
-
-## Next Steps (Optional Enhancements)
-- Convert the project to **TypeScript** (`npx create-next-app@latest --ts`).
-- Add server‑side API routes that consume secret env vars (no `NEXT_PUBLIC_` prefix).
-- Write unit tests with **Jest** or end‑to‑end tests with **Cypress**.
-- Integrate the git workflow automation (GitHub Actions) to enforce the branching policy.
+| Branch | Environment | Background | Badge |
+|--------|-------------|------------|-------|
+| `develop` | Development | 🟢 Teal gradient | `Development (DEV)` |
+| `preprod` | Pre-Production | 🟡 Amber gradient | `Pre-Production (PRE)` |
+| `main` | Production | 🔵 Slate gradient | `Production (PROD)` |
 
 ---
+
+## Prerequisites
+- A **GitHub** account with the repo: `https://github.com/098ff/demo-3-env`
+- A **Vercel** account (free tier works) — sign up at [vercel.com](https://vercel.com)
+
+---
+
+## Step-by-Step: Deploy to Vercel
+
+### Step 1 — Import the Project
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Click **"Import Git Repository"**
+3. Select the GitHub repo **`098ff/demo-3-env`**
+4. Vercel auto-detects **Next.js** — leave all defaults as-is
+5. Click **"Deploy"**
+
+> After this step, Vercel deploys the `main` branch as **Production**.  
+> You should see the **🔵 Production (PROD)** page with a slate background.
+
+---
+
+### Step 2 — Set the Production Branch
+1. Go to **Project Settings → Git**
+2. Under **"Production Branch"**, make sure it is set to **`main`**
+3. Click **Save**
+
+> This ensures only `main` is treated as Production.
+
+---
+
+### Step 3 — (Optional) Set Environment Variables per Environment
+1. Go to **Project Settings → Environment Variables**
+2. Add `NEXT_PUBLIC_API_URL` with different values for each environment:
+
+| Variable | Environment Target | Value |
+|----------|-------------------|-------|
+| `NEXT_PUBLIC_API_URL` | **Production** | `https://api.example.com` |
+| `NEXT_PUBLIC_API_URL` | **Preview** | `https://pre-api.example.com` |
+| `NEXT_PUBLIC_API_URL` | **Development** | `https://dev-api.example.com` |
+
+> When adding, use the **Environment** checkboxes to pick which target (Production / Preview / Development) each value applies to.
+
+---
+
+### Step 4 — Trigger Deployments for Each Branch
+
+#### 4a. Production (`main`) — Already Deployed
+- The initial import already deployed `main` as production.
+- **URL**: Your project's primary domain, e.g. `https://demo-3-env.vercel.app`
+- You should see: **🔵 Production (PROD)** with a slate background.
+
+#### 4b. Pre-Production (`preprod`) — Preview Deployment
+Any branch that is **not** the production branch is treated as a **Preview** deployment by Vercel. To trigger it:
+
+1. Go to GitHub → repo **demo-3-env**
+2. The `preprod` branch is already pushed.
+3. Go to Vercel dashboard → your project → **"Deployments"** tab.
+4. If `preprod` hasn't been deployed yet, you can trigger it by:
+   - Pushing a small commit to `preprod`, **OR**
+   - Going to **Vercel Dashboard → Project → Settings → Git** and clicking **"Redeploy"** for the `preprod` branch, **OR**
+   - Using the Vercel CLI: `vercel --force` (while on the `preprod` branch)
+5. Vercel will create a **Preview URL** like: `https://demo-3-env-git-preprod-098ffs-projects.vercel.app`
+6. You should see: **🟡 Pre-Production (PRE)** with an amber background.
+
+#### 4c. Development (`develop`) — Preview Deployment
+Same process as `preprod`:
+
+1. The `develop` branch is already pushed.
+2. Trigger a deployment by pushing a commit or redeploying from the dashboard.
+3. Vercel will create a **Preview URL** like: `https://demo-3-env-git-develop-098ffs-projects.vercel.app`
+4. You should see: **🟢 Development (DEV)** with a teal background.
+
+---
+
+## How Vercel Maps Branches to Environments
+
+```
+┌──────────────┐     ┌─────────────────────────┐     ┌──────────────────────┐
+│  main branch │────▶│  Production Environment │────▶│  demo-3-env.vercel.app│
+└──────────────┘     └─────────────────────────┘     └──────────────────────┘
+
+┌──────────────┐     ┌─────────────────────────┐     ┌─────────────────────────────────────┐
+│preprod branch│────▶│  Preview Environment    │────▶│  demo-3-env-git-preprod-xxx.vercel.app│
+└──────────────┘     └─────────────────────────┘     └─────────────────────────────────────┘
+
+┌──────────────┐     ┌─────────────────────────┐     ┌─────────────────────────────────────┐
+│develop branch│────▶│  Preview Environment    │────▶│  demo-3-env-git-develop-xxx.vercel.app│
+└──────────────┘     └─────────────────────────┘     └─────────────────────────────────────┘
+```
+
+> **Note**: Vercel has only 2 deployment types: **Production** (one branch) and **Preview** (all other branches). Both `develop` and `preprod` are Preview deployments but get unique URLs.
+
+---
+
+## Verifying All 3 Environments Are Working
+
+| What to check | Expected result |
+|---------------|-----------------|
+| Open the **production URL** (`demo-3-env.vercel.app`) | 🔵 Slate background, label says **Production (PROD)**, branch shows **main** |
+| Open the **preprod preview URL** | 🟡 Amber background, label says **Pre-Production (PRE)**, branch shows **preprod** |
+| Open the **develop preview URL** | 🟢 Teal background, label says **Development (DEV)**, branch shows **develop** |
+
+---
+
+## Running Locally
+
+```bash
+# Clone the repo
+git clone https://github.com/098ff/demo-3-env.git
+cd demo-3-env
+
+# Install dependencies
+npm install
+
+# Run each branch locally:
+
+# Development
+git checkout develop && npm run dev
+# → Open http://localhost:3000 → 🟢 Teal (DEV)
+
+# Pre-Production
+git checkout preprod && npm run dev
+# → Open http://localhost:3000 → 🟡 Amber (PRE)
+
+# Production
+git checkout main && npm run dev
+# → Open http://localhost:3000 → 🔵 Slate (PROD)
+```
+
+---
+
+## Git Workflow (Selective Release Strategy)
+
+| Environment | Main Branch | Feature Branch Pattern | Promotion Method |
+|-------------|-------------|----------------------|-----------------|
+| Development | `develop` | `feat/<TEAM_ID>_BSL_<TASK_ID>` | PR into `develop` |
+| Pre-Production | `preprod` | `pp/<TEAM_ID>_BSL_<TASK_ID>` | Cherry-pick → PR into `preprod` |
+| Production | `main` | `prod/<TEAM_ID>_BSL_<TASK_ID>` | Cherry-pick → PR into `main` |
+
+### Tagging Policy
+- **Pre-Production**: `vX.Y.Z-rc.N` (e.g. `v1.0.0-rc.1`)
+- **Production**: `vX.Y.Z` (e.g. `v1.0.0`) — immutable, one tag per version
+
+---
+
 ## License
-MIT – free to use, modify, and deploy.
+MIT
