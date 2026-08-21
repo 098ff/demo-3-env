@@ -1,31 +1,5 @@
 export default function Home() {
-  const envLabel = process.env.NEXT_PUBLIC_ENV_LABEL || 'UNKNOWN';
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '(not set)';
-
-  // Environment-specific config
-  const envConfig = {
-    DEV: {
-      name: 'Development (DEV)',
-      gradient: 'linear-gradient(135deg, #0d9488, #115e59)',
-      badge: '#14b8a6',
-    },
-    PRE: {
-      name: 'Pre-Production (PRE)',
-      gradient: 'linear-gradient(135deg, #d97706, #92400e)',
-      badge: '#f59e0b',
-    },
-    PROD: {
-      name: 'Production (PROD)',
-      gradient: 'linear-gradient(135deg, #334155, #0f172a)',
-      badge: '#64748b',
-    },
-  };
-
-  const config = envConfig[envLabel] || {
-    name: `Unknown (${envLabel})`,
-    gradient: 'linear-gradient(135deg, #1e1e2f, #2a2a3b)',
-    badge: '#6b7280',
-  };
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://dev-api.example.com';
 
   return (
     <div style={{
@@ -34,7 +8,7 @@ export default function Home() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: config.gradient,
+      background: 'linear-gradient(135deg, #0d9488, #115e59)',
       color: '#fff',
     }}>
       <main style={{
@@ -52,14 +26,14 @@ export default function Home() {
           display: 'inline-block',
           padding: '0.35rem 1rem',
           borderRadius: '999px',
-          background: config.badge,
+          background: '#14b8a6',
           fontSize: '0.85rem',
           fontWeight: 600,
           letterSpacing: '0.05em',
           marginBottom: '1.25rem',
           color: '#fff',
         }}>
-          {config.name}
+          🟢 Development (DEV)
         </div>
 
         <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 700 }}>
@@ -78,7 +52,8 @@ export default function Home() {
           fontSize: '0.9rem',
           lineHeight: 1.8,
         }}>
-          <div><strong>ENV_LABEL:</strong> {envLabel}</div>
+          <div><strong>ENVIRONMENT:</strong> Development</div>
+          <div><strong>BRANCH:</strong> develop</div>
           <div style={{ wordBreak: 'break-all' }}><strong>API_URL:</strong> {apiUrl}</div>
         </div>
       </main>
