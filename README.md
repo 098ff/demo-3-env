@@ -53,21 +53,46 @@ A minimal **Next.js** app that demonstrates how a single repo with **3 branches*
 
 #### 2c. ทำความเข้าใจ: Vercel แบ่ง Environment อย่างไร
 
-Vercel มี **2 ประเภท deployment**:
+Vercel มี **2 ประเภท deployment** เท่านั้น (ไม่ใช่ 3):
 
 | ประเภท | Branch | การ trigger |
 |--------|--------|------------|
 | **Production** | เฉพาะ branch ที่ตั้งใน "Production Branch" (เช่น `main`) | Push ไป `main` |
-| **Preview** | **ทุก branch อื่น** ที่ไม่ใช่ Production Branch | Push ไป `develop`, `preprod`, หรือ branch ใดก็ได้ |
+| **Preview** | **ทุก branch อื่น** ที่ไม่ใช่ Production Branch | Push ไป branch ใดก็ได้ |
 
 ดังนั้นในโปรเจคนี้:
 - `main` → **Production** deployment (URL หลัก `xxx.vercel.app`)
 - `preprod` → **Preview** deployment (URL แยก `xxx-git-preprod-xxx.vercel.app`)
 - `develop` → **Preview** deployment (URL แยก `xxx-git-develop-xxx.vercel.app`)
 
-> 💡 **Tip**: แม้ทั้ง `develop` กับ `preprod` จะเป็น "Preview" ใน Vercel เหมือนกัน  
-> แต่แต่ละ branch ได้ **URL คนละอัน** และ build จาก **โค้ดคนละ branch**  
-> จึงแสดง UI ต่างกันตามที่เราตั้งไว้ในแต่ละ branch
+> ⚠️ **ข้อควรระวัง**: Vercel **ไม่ได้ให้เราผูก branch เฉพาะกับ Preview หรือ Development** แบบ 1:1  
+> ทุก branch ที่ไม่ใช่ Production Branch จะถูก deploy เป็น **Preview** ทั้งหมด  
+> หมายความว่า ถ้าคุณ push branch `feat/KM_BSL_102` หรือ `pp/KM_BSL_102` → **Vercel จะ auto-deploy ทุกอันเป็น Preview** ด้วย
+
+#### 2d. (แนะนำ) จำกัด Branch ที่ Auto-Deploy
+
+เพื่อไม่ให้ทุก branch ถูก deploy อัตโนมัติ (เช่น ไม่อยากให้ `feat/...` deploy) สามารถตั้งค่าได้:
+
+**วิธีที่ 1: ใช้ Ignored Build Step**
+1. ไปที่ **Project Settings → Git → Ignored Build Step**
+2. ใส่ custom command ที่เช็คชื่อ branch:
+   ```bash
+   if [ "$VERCEL_GIT_COMMIT_REF" = "main" ] || [ "$VERCEL_GIT_COMMIT_REF" = "preprod" ] || [ "$VERCEL_GIT_COMMIT_REF" = "develop" ]; then exit 1; else exit 0; fi
+   ```
+   - `exit 1` = **deploy** (ชื่อสับสน แต่ 1 = "don't ignore" = deploy)
+   - `exit 0` = **skip** (0 = "ignore this build" = ไม่ deploy)
+
+> ✅ ผลลัพธ์: เฉพาะ `main`, `preprod`, `develop` เท่านั้นที่จะถูก deploy  
+> branch อื่นเช่น `feat/...`, `pp/...`, `prod/...` จะถูก skip ไม่ build
+
+**วิธีที่ 2: ปิด Auto-Deploy แล้ว deploy manual**
+1. ไปที่ **Project Settings → Git**
+2. ปิด **"Automatically deploy"** 
+3. Deploy ด้วยมือผ่าน Vercel Dashboard หรือ CLI เมื่อต้องการ
+
+> 💡 **สรุป**: Vercel ไม่ได้แยก "Development" กับ "Preview" ตาม branch name  
+> แต่เราใช้ **Ignored Build Step** เพื่อควบคุมว่า branch ไหนบ้างที่ควร deploy  
+> และใช้ **โค้ดที่ต่างกันในแต่ละ branch** เพื่อให้ UI แสดงผลต่างกัน
 
 ---
 
