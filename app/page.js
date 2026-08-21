@@ -2,6 +2,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function Home() {
+  // Feature: demo environment indicator
   // Vercel provides VERCEL_ENV = 'development' | 'preview' | 'production'
   const vercelEnv = process.env.VERCEL_ENV || 'development';
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || '(not set)';
